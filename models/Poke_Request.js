@@ -25,8 +25,6 @@ class Poke_Requests {
         const response = await fetch(`${this.BASE_URL}/pokemon-species/${index}`);
         return await response.json();
     }
-
-
 }
 
 export default Poke_Requests;

@@ -20,14 +20,16 @@ export default Home = ({ navigation }) => {
   const renderList = () => {
     if (generations.results) {
       console.log(generations.results);
+
+
       return generations.results.map((generation, index) => {
+        
         generation.name =
           generation.name.charAt(0).toUpperCase() + generation.name.slice(1);
         generation.name = generation.name.replace("-", " ");
-
         
 
-        console.log(generation.name);
+
         return (
           <View
             key={index}
