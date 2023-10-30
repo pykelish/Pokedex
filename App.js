@@ -1,25 +1,39 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState, useCallback, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Home from "./Views/Home";
+import Header from "./Template/Header";
 
-const pokePath = "https://pokeapi.co/api/v2/";
-const pokeQuery = "pokemon?limit=100000&offset=0";
-const apiUrl = `${pokePath}${pokeQuery}`;
-return (
+const Stack = createNativeStackNavigator();
 
-  <View style={styles.container}>
-    <Text> Si </Text>
-
-  </View>
-
-);
-
+export default function App() {
+  return (
+    <NavigationContainer>
+      {/* <SafeAreaView style={{ flex: 1 }}> */}
+        <Stack.Navigator
+          screenOptions={{
+            header: () => <Header />,
+            headerTransparent: true,
+            contentStyle: {
+              marginTop: 30,
+              backgroundColor: 'white'
+            }
+          }}
+        >
+          <Stack.Screen name="home" component={Home} />
+        </Stack.Navigator>
+      {/* </SafeAreaView> */}
+    </NavigationContainer>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#fff",
+    alignItems: "center",
+    // justifyContent: 'center',
   },
 });
