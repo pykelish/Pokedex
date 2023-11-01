@@ -1,4 +1,11 @@
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { SvgUri } from "react-native-svg";
 import PokemonLogo from "../assets/icons/PokemonLogo";
 import SearchInput from "../Components/SearchInput";
@@ -8,54 +15,87 @@ import { useEffect } from "react";
 
 export default Home = ({ navigation }) => {
   const [generations, setGenerations] = useState([]);
+  const [pokemonsGenerations, setPokemonsGenerations] = useState([]);
+  const [pokemon, setPokemon] = useState([]);
+  const [filter, setFilter] = useState("")
 
   useEffect(() => {
     const getGenerations = async () => {
       setGenerations(await Poke_Requests.getAllGenerations());
+      setPokemon(await Poke_Requests.getAllPokemons());
     };
 
     getGenerations();
+    // console.log(pokemon);
   }, []);
 
-  const renderList = () => {
-    if (generations.results) {
-      console.log(generations.results);
+  useEffect(() => {
+    renderList();
+  }, [generations]);
 
+  const filterPokemon = (input) => {
+    // console.log("filtro: " + filter);
+    // console.log();
+    if (filter) {
+      console.log(pokemon.results.filter((e) =>{
+        // console.log("resultado: " + e.name.trim().toLowerCase())
+        return e.name.trim().toLowerCase().includes(filter)}
+      ));
+    }
+    return [];
+  };
 
-      return generations.results.map((generation, index) => {
-        
-        generation.name =
-          generation.name.charAt(0).toUpperCase() + generation.name.slice(1);
-        generation.name = generation.name.replace("-", " ");
-        
+  const onTextChange = (input) => {
+    setFilter(input.trim().toLowerCase()); 
+    // console.log(filter);
+  }
 
+  const renderList = async () => {
+    if (generations && generations.results) {
+      const promises = generations.results.map(async (generation, index) => {
+        let name = (
+          generation.name[0].toUpperCase() + generation.name.slice(1)
+        ).split("-");
+        name[1] = name[1].toUpperCase();
+        name = name.join(" ");
 
-        return (
-          <View
-            key={index}
-            style={{
-              width: "49%",
-              backgroundColor: "#f9f9f9",
-              padding: 20,
-              borderRadius: 10,
-              borderWidth: 1,
-              borderColor: "rgba(0,0,0,0.15)",
-              marginBottom: 20,
-              
-            }}
-          >
-            <Text style={{ fontWeight: "900" }}>{generation.name}</Text>
-
-          </View>
+        const generationsDetail = await Poke_Requests.getGenerationDetailsId(
+          index + 1
         );
+
+        let images = [];
+
+        await Promise.all(
+          generationsDetail.pokemon_species
+            .slice(0, 3)
+            .map(async (specie, index) => {
+              const speciesDetails = await Poke_Requests.getPokemonSpecieDetail(
+                specie.name
+              );
+              const pokemon = await Poke_Requests.getPokemon(
+                speciesDetails.varieties[0].pokemon.name
+              );
+
+              images.push(pokemon.sprites.front_default);
+            })
+        );
+
+        return {
+          name,
+          images,
+        };
       });
+
+      const pokemonsGenerationsData = await Promise.all(promises);
+      setPokemonsGenerations(pokemonsGenerationsData);
+      // console.log(pokemonsGenerationsData);
     }
   };
 
   return (
     <>
       <View style={styles.icon}>
-        <PokemonLogo color="#e9e9e9" />
+        <PokemonLogo color="#e1f5f5" />
       </View>
       <ScrollView style={styles.container}>
         <View style={styles.content}>
@@ -65,20 +105,164 @@ export default Home = ({ navigation }) => {
               <Text style={styles.title}>are you looking for?</Text>
             </View>
 
-            <SearchInput placeholder="Search Pokemon"></SearchInput>
+            <SearchInput
+              onChangeText={onTextChange}
+              placeholder="Search Pokemon"
+            ></SearchInput>
 
             <View
               style={{
                 display: "flex",
                 flexDirection: "row",
                 width: "100%",
-                backgroundColor: "red",
+                // height: 300,
+                // backgroundColor: "red",
                 flexWrap: "wrap",
                 justifyContent: "space-between",
-                gap: 5
+                gap: 10,
               }}
             >
-              {renderList()}
+              {/* Recordar transformar esto en componente */}
+              {pokemonsGenerations && !filter
+                ? pokemonsGenerations.map((detail, index) => (
+                    <View
+                      key={index}
+                      style={{
+                        width: "48%",
+                        backgroundColor: "#f9f9f9",
+                        padding: 20,
+                        borderRadius: 10,
+                        // borderWidth: 1,
+                        // borderColor: "rgba(0,0,0,0.15)",
+                        shadowColor: "black",
+                        shadowOffset: {
+                          width: 0,
+                          height: 0,
+                        },
+                        elevation: 4,
+                        shadowOpacity: 0.25,
+                        marginBottom: 20,
+                        display: "flex",
+                        // alignItems: 'baseline',
+                        // justifyContent: "flex-start",
+
+                        position: "relative",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <View
+                        style={{
+                          position: "absolute",
+                          width: 80,
+                          height: 80,
+                          right: -20,
+                          bottom: -10,
+                        }}
+                      >
+                        <PokemonLogo color="#e9e5e5" />
+                      </View>
+
+                      <Text style={{ fontWeight: "900", textAlign: "center" }}>
+                        {detail.name}
+                      </Text>
+
+                      <View
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+
+                          gap: -50,
+                        }}
+                      >
+                        {detail.images.map((image, index) => (
+                          <Image
+                            style={{
+                              height: 100,
+                              width: 100,
+                              position: "relative",
+                              top: 10,
+                              objectFit: "cover",
+                              // backgroundColor: "blue",
+                            }}
+                            key={index}
+                            source={{ uri: image }}
+                          />
+                        ))}
+                      </View>
+                    </View>
+                  ))
+                : filterPokemon().map((pokemon, index) => (
+                    <View
+                      key={index}
+                      style={{
+                        width: "48%",
+                        backgroundColor: "#f9f9f9",
+                        padding: 20,
+                        borderRadius: 10,
+                        // borderWidth: 1,
+                        // borderColor: "rgba(0,0,0,0.15)",
+                        shadowColor: "black",
+                        shadowOffset: {
+                          width: 0,
+                          height: 0,
+                        }, 
+                        elevation: 4,
+                        shadowOpacity: 0.25,
+                        marginBottom: 20,
+                        display: "flex",
+                        // alignItems: 'baseline',
+                        // justifyContent: "flex-start",
+
+                        position: "relative",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <View
+                        style={{
+                          position: "absolute",
+                          width: 80,
+                          height: 80,
+                          right: -20,
+                          bottom: -10,
+                        }}
+                      >
+                        <PokemonLogo color="#e9e5e5" />
+                      </View>
+
+                      <Text style={{ fontWeight: "900", textAlign: "center" }}>
+                        {pokemon.name}
+                      </Text>
+
+                      <View
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+
+                          gap: -50,
+                        }}
+                      >
+                        {/* {detail.images.map((image, index) => (
+                          <Image
+                            style={{
+                              height: 100,
+                              width: 100,
+                              position: "relative",
+                              top: 10,
+                              objectFit: "cover",
+                              // backgroundColor: "blue",
+                            }}
+                            key={index}
+                            source={{ uri: image }}
+                          />
+                        ))} */}
+                      </View>
+                    </View>
+                  ))}
+              {/* FIN: Transformar en componente */}
             </View>
           </View>
         </View>

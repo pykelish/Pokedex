@@ -23,7 +23,7 @@ export default function App() {
         >
           <Stack.Screen name="home" component={Home} />
         </Stack.Navigator>
-      {/* </SafeAreaView> */}
+      {/* </SafeAreaView> */} 
     </NavigationContainer>
   );
 }

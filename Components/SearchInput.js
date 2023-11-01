@@ -7,21 +7,21 @@ export default SearchInput = (props) => {
       <View style={styles.icon}>
         <SearchIcon></SearchIcon>
       </View>
-      <TextInput placeholder={props.placeholder} style={styles.input} />
+      <TextInput onChangeText={props.onChangeText} placeholder={props.placeholder} style={styles.input} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f3f3f3',
+    backgroundColor: "#f3f3f3",
     height: 50,
     borderRadius: 80,
     paddingHorizontal: 20,
     display: "flex",
     alignItems: "center",
     flexDirection: "row",
-    gap: 15
+    gap: 15,
   },
 
   icon: {
