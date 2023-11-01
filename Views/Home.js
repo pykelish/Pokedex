@@ -17,7 +17,7 @@ export default Home = ({ navigation }) => {
   const [generations, setGenerations] = useState([]);
   const [pokemonsGenerations, setPokemonsGenerations] = useState([]);
   const [pokemon, setPokemon] = useState([]);
-  const [filter, setFilter] = useState("")
+  const [filter, setFilter] = useState("");
 
   useEffect(() => {
     const getGenerations = async () => {
@@ -37,18 +37,17 @@ export default Home = ({ navigation }) => {
     // console.log("filtro: " + filter);
     // console.log();
     if (filter) {
-      console.log(pokemon.results.filter((e) =>{
-        // console.log("resultado: " + e.name.trim().toLowerCase())
-        return e.name.trim().toLowerCase().includes(filter)}
-      ));
+      return pokemon.results.filter((e) =>
+        e.name.trim().toLowerCase().includes(filter)
+      );
     }
     return [];
   };
 
   const onTextChange = (input) => {
-    setFilter(input.trim().toLowerCase()); 
+    setFilter(input.trim().toLowerCase());
     // console.log(filter);
-  }
+  };
 
   const renderList = async () => {
     if (generations && generations.results) {
@@ -207,7 +206,7 @@ export default Home = ({ navigation }) => {
                         shadowOffset: {
                           width: 0,
                           height: 0,
-                        }, 
+                        },
                         elevation: 4,
                         shadowOpacity: 0.25,
                         marginBottom: 20,
