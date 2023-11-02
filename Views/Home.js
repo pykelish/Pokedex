@@ -75,8 +75,8 @@ export default Home = ({ navigation }) => {
                 speciesDetails.varieties[0].pokemon.name
               );
 
-              images.push(pokemon.sprites.front_default);
-            })
+              images.push(pokemon.sprites.other['official-artwork'].front_default);
+            }) 
         );
 
         return {
@@ -129,14 +129,14 @@ export default Home = ({ navigation }) => {
                       style={{
                         width: "48%",
                         backgroundColor: "#f9f9f9",
-                        padding: 20,
+                        padding: 30,
                         borderRadius: 10,
                         // borderWidth: 1,
                         // borderColor: "rgba(0,0,0,0.15)",
                         shadowColor: "black",
                         shadowOffset: {
-                          width: 0,
-                          height: 0,
+                          width: 100,
+                          height: 100,
                         },
                         elevation: 4,
                         shadowOpacity: 0.25,
@@ -172,17 +172,17 @@ export default Home = ({ navigation }) => {
                           justifyContent: "center",
                           alignItems: "center",
 
-                          gap: -50,
+                          gap: -15,
                         }}
                       >
                         {detail.images.map((image, index) => (
                           <Image
                             style={{
-                              height: 100,
-                              width: 100,
+                              height: 60,
+                              width: 60,
                               position: "relative",
-                              top: 10,
-                              objectFit: "cover",
+                              top: 15,
+                              objectFit: "contain",
                               // backgroundColor: "blue",
                             }}
                             key={index}
