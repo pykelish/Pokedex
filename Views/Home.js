@@ -172,7 +172,7 @@ export default Home = ({ navigation }) => {
                           justifyContent: "center",
                           alignItems: "center",
 
-                          gap: -15,
+                          gap: -20,
                         }}
                       >
                         {detail.images.map((image, index) => (
