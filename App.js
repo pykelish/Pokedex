@@ -4,17 +4,20 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./Views/Home";
 import Header from "./Template/Header";
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import Poke_Requests from "./models/Poke_Request";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [pokemonData, setPokemonData] = useState({});
+  const [pokemonData, setPokemonData] = useState([]);
+  const [groupedByGeneration, setGroupedByGeneration] = useState({});
+  const [loading, setLoading] = useState(true);
+  const DataContext = createContext();
 
   useEffect(() => {
     const getGeneration = async () => {
-      let pokemonDataAux = {};
+      let pokemonDataAux = [];
       const { results: generations } = await Poke_Requests.getAllGenerations();
 
       // La generacion tiene que agregarse al objeto final
@@ -33,71 +36,90 @@ export default function App() {
               await Promise.all(
                 varieties.map(async ({ pokemon }) => {
                   const request = await Poke_Requests.getPokemon(pokemon.name);
+                  request["generation"] = generation.name;
 
-                  if (pokemonDataAux.length < 10) {
-                    // if (!pokemonData[generation.name]) {
-                    //   console.log("Hola");
-                    //   pokemonDataAux[generation.name] = [];
-                    // }
-                    // pokemonDataAux[generation.name] = pokemonData[generation.name];
-                    // pokemonDataAux[generation.name] = [...pokemonData[generation.name], request];
-                    // console.log(pokemonDataAux[generation.name]);
-                    console.log(pokemonDataAux[generation.name]);
-                    if (pokemonDataAux.length < 10) return;
+                  if (pokemonDataAux.length < 50) {
+                    pokemonDataAux.push(request);
+                    if (pokemonDataAux.length < 50) return;
                   }
 
-                  // setPokemonData({ ...pokemonData, ...pokemonDataAux });
-                  // pokemonDataAux = [];
+                  setPokemonData((prevPokemonData) => [
+                    ...prevPokemonData,
+                    ...pokemonDataAux,
+                  ]);
+                  pokemonDataAux = [];
                 })
               );
             })
           );
-          
-          // pok
         })
       );
 
-      // if (pokemonDataAux.length > 0) {
-      //   setPokemonData((prevPokemonData) => [
-      //     ...prevPokemonData,
-      //     ...pokemonDataAux,
-      //   ]);
-      // }
-    };
+      if (pokemonDataAux.length > 0) {
+        setPokemonData((prevPokemonData) => [
+          ...prevPokemonData,
+          ...pokemonDataAux,
+        ]);
 
-    const groupByGeneration = () => {
-      // setPokemonData(pokemonData.reduce((result, pokemon) => {
-      //   if(reducedData[result.generation])
-      // }))
+        setLoading(false);
+      }
+
+      // groupByGeneration();
     };
 
     // getPokemonData();
     getGeneration();
-    groupByGeneration();
+    // groupByGeneration();
   }, []);
 
+  // useEffect(() => {
+  //   setGroupedByGeneration({});
+  //   const groupByGeneration = () => {
+  //     const groupedData = pokemonData.reduce((result, pokemon) => {
+  //       if (!result[pokemon.generation]) {
+  //         result[pokemon.generation] = [];
+  //       }
+
+  //       result[pokemon.generation].push(pokemon);
+  //       return result;
+  //     }, {});
+
+  //     // console.log(groupedData);
+  //     // setPokemonData(groupedData);
+  //     // setGroupedByGeneration(groupedData);
+  //   };
+
+  //   // groupByGeneration();
+  // }, [pokemonData]);
+
+  if(loading) {
+    return (
+      <View style={{display: "flex", height: '100%', justifyContent: "center", alignItems: "center"}}>
+        <Text>Loading {(pokemonData.length / 1292).toFixed(2) * 100}%</Text>
+      </View>
+    )
+  } 
   return (
-    <NavigationContainer>
-      <Text style={{ textAlign: "center" }}>
-        {Object.entries(pokemonData).length}
-      </Text>
-      {/* {console.log(pokemonData.length)}   */}
-      {/* <SafeAreaView style={{ flex: 1 }}> */}
-      {/* <Stack.Navigator 
-        initialRouteName="home"
-        screenOptions={{
-          header: () => <Header />,
-          headerTransparent: true,
-          contentStyle: {
-            marginTop: 30,
-            backgroundColor: "white",
-          },
-        }}
-      >
-        <Stack.Screen name="home" component={Home} /> 
-      </Stack.Navigator> */}
-      {/* </SafeAreaView> */}
-    </NavigationContainer>
+    <DataContext.Provider value={pokemonData}>
+        <Text>{pokemonData.length}</Text>
+      <NavigationContainer>
+        {/* <SafeAreaView style={{ flex: 1 }}> */}
+        <Stack.Navigator
+          initialRouteName="home"
+          screenOptions={{
+            header: () => <Header />,
+            headerTransparent: true,
+            contentStyle: {
+              marginTop: 30,
+              backgroundColor: "white",
+            },
+          }}
+        >
+          <Stack.Screen name="home" component={Home}/>
+        </Stack.Navigator>
+        {/* </SafeAreaView> */}
+      </NavigationContainer>
+    </DataContext.Provider>
   );
 }
 

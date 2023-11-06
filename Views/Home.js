@@ -24,13 +24,10 @@ export default Home = ({ navigation }) => {
       setGenerations(await Poke_Requests.getAllGenerations());
       setPokemon(await Poke_Requests.getAllPokemons());
     };
-
-    getGenerations();
-    // console.log(pokemon);
   }, []);
 
   useEffect(() => {
-    renderList();
+    // renderList();
   }, [generations]);
 
   const filterPokemon = (input) => {
